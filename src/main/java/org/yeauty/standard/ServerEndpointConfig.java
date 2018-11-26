@@ -1,6 +1,9 @@
 package org.yeauty.standard;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.springframework.util.StringUtils;
+import org.yeauty.pojo.PojoEndpointServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,6 +38,8 @@ public class ServerEndpointConfig {
     private final int WRITER_IDLE_TIME_SECONDS;
     private final int ALL_IDLE_TIME_SECONDS;
     private static Integer randomPort;
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ServerEndpointConfig.class);
 
     public ServerEndpointConfig(String host, int port, String path, int bossLoopGroupThreads, int workerLoopGroupThreads, boolean useCompressionHandler, int connectTimeoutMillis, int soBacklog, int writeSpinCount, int writeBufferHighWaterMark, int writeBufferLowWaterMark, int soRcvbuf, int soSndbuf, boolean tcpNodelay, boolean soKeepalive, int soLinger, boolean allowHalfClosure, int readerIdleTimeSeconds, int writerIdleTimeSeconds, int allIdleTimeSeconds) {
         if (StringUtils.isEmpty(host) || "0.0.0.0".equals(host) || "0.0.0.0/0.0.0.0".equals(host)) {
@@ -88,13 +93,13 @@ public class ServerEndpointConfig {
         try {
             socket.bind(inetSocketAddress);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         int localPort = socket.getLocalPort();
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         randomPort = localPort;
         return localPort;

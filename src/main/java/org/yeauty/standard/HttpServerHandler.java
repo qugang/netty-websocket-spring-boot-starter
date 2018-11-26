@@ -11,6 +11,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.springframework.util.StringUtils;
 import org.yeauty.pojo.ParameterMap;
 import org.yeauty.pojo.PojoEndpointServer;
@@ -27,6 +29,10 @@ class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final PojoEndpointServer pojoEndpointServer;
     private final ServerEndpointConfig config;
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(HttpServerHandler.class);
+
+
 
     private static ByteBuf faviconByteBuf = null;
     private static ByteBuf notFoundByteBuf = null;
@@ -87,7 +93,8 @@ class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 res = new DefaultFullHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
             }
             sendHttpResponse(ctx, msg, res);
-            e.printStackTrace();
+
+            logger.error(e);
         }
     }
 

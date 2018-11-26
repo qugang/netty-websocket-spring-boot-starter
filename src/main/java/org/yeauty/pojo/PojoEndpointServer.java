@@ -61,7 +61,7 @@ public class PojoEndpointServer {
             implement = methodMapping.getEndpointInstance();
             attrPojo.set(implement);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         Attribute<Session> attrSession = channel.attr(SESSION_KEY);
         Session session = null;
@@ -69,7 +69,7 @@ public class PojoEndpointServer {
             session = new Session(channel);
             attrSession.set(session);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         HttpHeaders headers = req.headers();
         Method onOpenMethod = methodMapping.getOnOpen();

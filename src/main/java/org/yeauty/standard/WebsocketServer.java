@@ -9,6 +9,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.yeauty.pojo.PojoEndpointServer;
 
 import java.net.BindException;
@@ -25,6 +27,9 @@ public class WebsocketServer {
     private final PojoEndpointServer pojoEndpointServer;
 
     private final ServerEndpointConfig config;
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(WebsocketServer.class);
+
 
     public WebsocketServer(PojoEndpointServer webSocketServerHandler, ServerEndpointConfig serverEndpointConfig) {
         this.pojoEndpointServer = webSocketServerHandler;
@@ -45,7 +50,6 @@ public class WebsocketServer {
                 .childOption(ChannelOption.SO_KEEPALIVE, config.isSoKeepalive())
                 .childOption(ChannelOption.SO_LINGER, config.getSoLinger())
                 .childOption(ChannelOption.ALLOW_HALF_CLOSURE, config.isAllowHalfClosure())
-                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
@@ -53,6 +57,7 @@ public class WebsocketServer {
                         pipeline.addLast(new HttpServerCodec());
                         pipeline.addLast(new HttpObjectAggregator(65536));
                         pipeline.addLast(new HttpServerHandler(pojoEndpointServer, config));
+                        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                     }
                 });
 
@@ -72,13 +77,13 @@ public class WebsocketServer {
                 channelFuture = bootstrap.bind(new InetSocketAddress(InetAddress.getByName(config.getHost()), config.getPort()));
             } catch (UnknownHostException e) {
                 channelFuture = bootstrap.bind(config.getHost(), config.getPort());
-                e.printStackTrace();
+                logger.error(e);
             }
         }
 
         channelFuture.addListener(future -> {
             if (!future.isSuccess()){
-                future.cause().printStackTrace();
+                logger.error(future.cause());
             }
         });
 
